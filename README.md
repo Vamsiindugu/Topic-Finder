@@ -1,86 +1,61 @@
-# 🎡 Topic Finder: Kinetic Question Discovery
+# 🎡 Topic Finder
 
-[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.x-ff69b4?logo=framer&logoColor=white)](https://www.framer.com/motion/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+A simple, rotary wheel app for breaking the ice. It’s built to make finding conversation starters feel less like scrolling a list and more like playing a game. 
 
-A cinematic, highly-interactive React application designed for discovering deep conversation starters, funny icebreakers, and "What If" scenarios. Built with a focus on **fluid physics**, **premium aesthetics**, and **zero-scroll responsive design**.
+I built this because most "icebreaker" apps are just static text. I wanted something with actual weight, physics, and a "premium" feel that works perfectly on a phone.
 
 ---
 
-## ✨ Key Features
+## 🛠️ The Tech Behind It
 
-*   **🎡 Kinetic Wheel Interface:** A physics-based rotary wheel with realistic peg-clacking animations and inertia-driven easing.
-*   **🎭 Cinematic Reveal:** Smooth, spring-animated cards that present questions with category-specific iconography.
-*   **🖱️ Ambient Cursor Tracking:** A GPU-accelerated spotlight background that follows your mouse movements without triggering React re-renders.
-*   **📱 Native Mobile Feel:** Fully optimized for high-end devices like **iPhone 15/16 Pro Max** and **Samsung S24/25 Ultra**—designed for a perfect "one-screen" experience.
-*   **🧠 Smart Pool Logic:** Automatically manages your history and resets categories once all questions have been asked—no more "dead" buttons.
-
----
-
-## 🚀 Interactive UI Guide
-
-| Interaction | Result |
-| :--- | :--- |
-| **Tap Center Button** | 🌀 Triggers a high-velocity spin with realistic deceleration. |
-| **Select Category** | 🎯 Filters the question pool to match your mood (Deep, Funny, etc.). |
-| **Press `ESC` Key** | 🚪 Instantly dismisses a revealed question (A11Y feature). |
-| **Mouse Hover** | 💡 Dynamically shifts the indigo ambient spotlight. |
+*   **Animation:** [Framer Motion](https://www.framer.com/motion/). I used this for the inertia-driven wheel. It’s a bit heavier than basic CSS, but the "clacking" peg physics needed that level of control.
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/). Used for the layout. It’s fully responsive—I tuned the margins specifically so it fits on one screen (no scrolling) on everything from an iPhone 17 to a 4K monitor.
+*   **Logic:** [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/). Everything is modular. The data is separated so you can add new questions in seconds without touching the UI code.
+*   **Icons:** [Lucide React](https://lucide.dev/). Clean, fast, and consistent.
 
 ---
 
-## 🛠️ Built With
+## 📱 Designed for Mobile
 
-*   **Framework:** [React 18](https://reactjs.org/) (Strict Functional Components)
-*   **Animation:** [Framer Motion](https://www.framer.com/motion/) (Hardware-accelerated)
-*   **Styling:** [Tailwind CSS](https://tailwindcss.com/) (Responsive Utility-First Design)
-*   **Icons:** [Lucide React](https://lucide.dev/) (Sleek, minimalist glyphs)
-*   **Typing:** [TypeScript](https://www.typescriptlang.org/) (Strict interface contracts)
-*   **Bundler:** [Vite](https://vitejs.dev/) (Lightning-fast dev server)
+Most web apps fail on mobile because they require scrolling to see the "action." This app is constrained to the viewport. 
+*   **Samsung S25 Ultra / iPhone 17 Pro Max:** Fully verified.
+*   **Zero Scroll:** The entire UI (Header, Wheel, Categories) stays in view.
 
 ---
 
-## 📂 Project Structure (Senior Layout)
+## 🏗️ Design Trade-offs
 
-```text
-src/
-├── components/       # Reusable, atomic UI pieces
-├── data/             # Centralized question engine & types
-├── styles/           # Global design tokens & tailwind base
-├── App.tsx           # Main application shell & state orchestration
-└── main.tsx          # App entry point & strict-mode setup
+1.  **No Database:** I kept the questions in a static TypeScript file (`src/data/questions.ts`). Why? Because it makes the app lightning fast and infinitely easier to deploy. You don't need a backend to run this.
+2.  **GPU Acceleration:** I used `will-change-transform` and `z: 0` styles on the wheel. It forces the browser to use the GPU, which keeps the animation at 120Hz even on battery-saver mode.
+3.  **A11Y:** Added an `Escape` key listener for the modals. It’s a small detail, but it’s what makes an app feel professional.
+
+---
+
+## 🚀 Get it Running
+
+```bash
+# Install
+npm install
+
+# Dev mode
+npm run dev
+
+# Build for production
+npm run build
 ```
 
 ---
 
-## ⚙️ Local Development
+## ✍️ Adding Your Own Questions
 
-1.  **Clone the Repo:**
-    ```bash
-    git clone https://github.com/Vamsiindugu/Topic-Finder.git
-    cd Topic-Finder
-    ```
+Don't touch `App.tsx`. Just go to `src/data/questions.ts` and add a new object to the array:
 
-2.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
+```typescript
+{ id: '301', text: "What's your new question?", category: 'Deep', intensity: 2 }
+```
 
-3.  **Run Dev Server:**
-    ```bash
-    npm run dev
-    ```
-
-4.  **Build for Production:**
-    ```bash
-    npm run build
-    ```
+The app handles the rest. It’ll update the count and add it to the random pool automatically.
 
 ---
 
-## 🤝 Contribution
-
-Adding new questions is easy! Simply edit `src/data/questions.ts` and add your question to the `QUESTIONS` array. The UI will automatically calculate the new count and update the pool logic—no code changes required.
-
-Built with ❤️ by **[Vamsi Indugu](https://github.com/Vamsiindugu)**.
+Built by **[Vamsi Indugu](https://github.com/Vamsiindugu)**.
