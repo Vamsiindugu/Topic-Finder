@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { Sparkles, Compass } from 'lucide-react';
 import { CATEGORIES, QUESTIONS, Question, Category } from './data/questions';
 import { AmbientBackground } from './components/AmbientBackground';
 import { KineticWheel } from './components/KineticWheel';
@@ -37,7 +37,7 @@ export default function App() {
       <header className="relative z-20 flex items-center justify-between p-6 md:px-12 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
-            <MessageCircle className="w-4 h-4 text-indigo-400" />
+            <Compass className="w-4 h-4 text-indigo-400" />
           </div>
           <h1 className="text-xl font-semibold tracking-tight text-white">Topic Finder</h1>
         </div>
@@ -53,7 +53,7 @@ export default function App() {
             setHistory={setHistory}
           />
           
-          <div className="mt-12 h-8">
+          <div className="mt-8 md:mt-12 h-8">
             <AnimatePresence mode="wait">
               {isSpinning ? (
                 <motion.p 
@@ -78,7 +78,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="w-full pb-8 pt-12 flex flex-col items-center gap-6">
+        <div className="w-full pb-8 pt-6 md:pt-12 flex flex-col items-center gap-6">
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 w-full max-w-3xl">
             {CATEGORIES.map(category => (
               <button
