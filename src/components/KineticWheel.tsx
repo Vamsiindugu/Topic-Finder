@@ -34,14 +34,18 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
     return 0;
   });
 
-  const triggerSpin = async () => {
+  const triggerSpin = useCallback(async () => {
     if (isSpinning) return;
     
-    let pool = QUESTIONS.filter(q => (activeCategory === 'All' || q.category === activeCategory) && !history.includes(q.id));
+    const historySet = new Set(history);
+    let pool = QUESTIONS.filter(q => (activeCategory === 'All' || q.category === activeCategory) && !historySet.has(q.id));
+    
     if (pool.length === 0) {
       setHistory([]);
       pool = QUESTIONS.filter(q => activeCategory === 'All' || q.category === activeCategory);
     }
+
+    if (pool.length === 0) return;
 
     const selectedQuestion = pool[Math.floor(Math.random() * pool.length)];
     const targetRotation = rotation.get() + (360 * 5) + (Math.random() * 360);
@@ -53,7 +57,7 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
       ease: [0.2, 0.8, 0.2, 1],
       onComplete: () => onSpinComplete({ status: 'finished', question: selectedQuestion })
     });
-  };
+  }, [isSpinning, activeCategory, history, setHistory, onSpinComplete, rotation]);
 
   const wheelSegments = useMemo(() => (
     [...Array(12)].map((_, i) => (
@@ -95,11 +99,11 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
         animate={{ scale: isSpinning ? 1.05 : 1, opacity: isSpinning ? 0.8 : 0.3 }}
         className="absolute inset-0 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"
       />
-
-      <motion.div 
-        className="absolute inset-0 rounded-full border-[1px] border-white/10 shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] overflow-hidden bg-[#09090b]"
-        style={{ rotate: rotation }}
-      >
+{/* The Rotary Ring */}
+<motion.div 
+  className="absolute inset-0 rounded-full border-[1px] border-white/10 shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] overflow-hidden bg-[#09090b] will-change-transform"
+  style={{ rotate: rotation, transformZ: 0 }}
+>
         <div className="absolute inset-0" style={{ background: 'conic-gradient(from 180deg at 50% 50%, #121214 0deg, #18181b 180deg, #121214 360deg)' }} />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15)_15%,transparent_50%)] pointer-events-none" />
         <div className="absolute inset-0" style={{ background: 'repeating-conic-gradient(from 0deg, rgba(255,255,255,0.02) 0deg 30deg, transparent 30deg 60deg)' }} />

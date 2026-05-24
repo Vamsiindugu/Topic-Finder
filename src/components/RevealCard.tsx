@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Target, Zap, Heart, HelpCircle, ArrowLeftRight, X, RotateCcw } from 'lucide-react';
 import { Question } from '../data/questions';
@@ -9,6 +9,14 @@ interface RevealCardProps {
 }
 
 export const RevealCard: FC<RevealCardProps> = ({ question, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   if (!question) return null;
 
   return (
