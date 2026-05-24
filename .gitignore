@@ -8,6 +8,7 @@ coverage/
 
 # Production
 dist/
+output.css
 
 # Misc
 .DS_Store
@@ -15,6 +16,7 @@ dist/
 logs/
 *.png
 *.log
+.package-lock.json
 
 # Vite
 .vite/
