@@ -1,4 +1,4 @@
-import { useMemo, Dispatch, SetStateAction, FC } from 'react';
+import { useMemo, Dispatch, SetStateAction, FC, useCallback } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Question, Category, QUESTIONS } from '../data/questions';
 
@@ -102,7 +102,7 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
 {/* The Rotary Ring */}
 <motion.div 
   className="absolute inset-0 rounded-full border-[1px] border-white/10 shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] overflow-hidden bg-[#09090b] will-change-transform"
-  style={{ rotate: rotation, transformZ: 0 }}
+  style={{ rotate: rotation, z: 0 }}
 >
         <div className="absolute inset-0" style={{ background: 'conic-gradient(from 180deg at 50% 50%, #121214 0deg, #18181b 180deg, #121214 360deg)' }} />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15)_15%,transparent_50%)] pointer-events-none" />
