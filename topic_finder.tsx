@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useAnimation, animate, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { Sparkles, Heart, Share2, RotateCcw, X, Target, Zap, MessageCircle } from 'lucide-react';
+import { Sparkles, Heart, Share2, RotateCcw, X, Target, Zap, MessageCircle, HelpCircle, ArrowLeftRight } from 'lucide-react';
 
 import { CATEGORIES, QUESTIONS, Question, Category } from './data';
 
@@ -277,6 +277,8 @@ const RevealCard: React.FC<RevealCardProps> = ({ question, onClose }) => {
             {question.category === 'Deep' && <Target className="w-4 h-4 text-rose-400" />}
             {question.category === 'Funny' && <Zap className="w-4 h-4 text-amber-400" />}
             {question.category === 'Close People' && <Heart className="w-4 h-4 text-pink-400" />}
+            {question.category === 'What If' && <HelpCircle className="w-4 h-4 text-cyan-400" />}
+            {question.category === 'Would You Rather' && <ArrowLeftRight className="w-4 h-4 text-emerald-400" />}
             <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-zinc-400 uppercase">
               {question.category}
             </span>
