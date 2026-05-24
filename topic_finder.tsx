@@ -57,9 +57,10 @@ interface KineticWheelProps {
   onSpinComplete: (result: { status: 'started' } | { status: 'finished', question: Question }) => void;
   activeCategory: Category | 'All';
   history: string[];
+  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const KineticWheel: React.FC<KineticWheelProps> = ({ isSpinning, onSpinComplete, activeCategory, history }) => {
+const KineticWheel: React.FC<KineticWheelProps> = ({ isSpinning, onSpinComplete, activeCategory, history, setHistory }) => {
   const rotation = useMotionValue(0);
 
   // Physical flapper sync: Uses the wheel's exact rotation to simulate pegs hitting the pointer
@@ -89,40 +90,22 @@ const KineticWheel: React.FC<KineticWheelProps> = ({ isSpinning, onSpinComplete,
   const triggerSpin = async () => {
     if (isSpinning) return;
     
-    // Filter questions
-    const available = QUESTIONS.filter(q => 
-      (activeCategory === 'All' || q.category === activeCategory) && 
-      !history.includes(q.id)
-    );
-    
-    // Fallback if all used
-    const pool = available.length > 0 ? available : QUESTIONS.filter(q => activeCategory === 'All' || q.category === activeCategory);
-    if (pool.length === 0) return; // Should not happen with 'All' fallback
+    // Simple pool selection with auto-reset if empty
+    let pool = QUESTIONS.filter(q => (activeCategory === 'All' || q.category === activeCategory) && !history.includes(q.id));
+    if (pool.length === 0) {
+      setHistory([]); // Auto-reset history if all questions in category are seen
+      pool = QUESTIONS.filter(q => activeCategory === 'All' || q.category === activeCategory);
+    }
 
     const selectedQuestion = pool[Math.floor(Math.random() * pool.length)];
-    
-    // Physics Simulation Constants
-    const minSpins = 6;
-    const maxSpins = 9;
-    const randomSpins = Math.floor(Math.random() * (maxSpins - minSpins + 1)) + minSpins;
-    
-    // Use the current accumulated rotation instead of a reset state
-    const currentRot = rotation.get();
-    const baseRotation = currentRot - (currentRot % 360);
-    const randomSliceIndex = Math.floor(Math.random() * 12);
-    
-    // Add new spins on top of the current accumulated rotation
-    const targetRotation = baseRotation + 360 + (360 * randomSpins) + (randomSliceIndex * 30) + 15;
+    const targetRotation = rotation.get() + (360 * 5) + (Math.random() * 360);
     
     onSpinComplete({ status: 'started' });
 
-    // Custom physical easing curve (momentum + heavy friction)
     animate(rotation, targetRotation, {
-      duration: 4.5,
-      ease: [0.2, 0.9, 0.1, 1], // Custom cubic-bezier for believable inertia
-      onComplete: () => {
-        onSpinComplete({ status: 'finished', question: selectedQuestion });
-      }
+      duration: 4,
+      ease: [0.2, 0.8, 0.2, 1],
+      onComplete: () => onSpinComplete({ status: 'finished', question: selectedQuestion })
     });
   };
 
@@ -370,6 +353,7 @@ export default function App() {
             onSpinComplete={handleSpinComplete} 
             activeCategory={activeCategory}
             history={history}
+            setHistory={setHistory}
           />
           
           {/* Contextual Status */}
