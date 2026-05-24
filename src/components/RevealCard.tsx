@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Target, Zap, Heart, HelpCircle, ArrowLeftRight, X, RotateCcw } from 'lucide-react';
 import { Question } from '../data/questions';
@@ -8,7 +8,7 @@ interface RevealCardProps {
   onClose: () => void;
 }
 
-export const RevealCard: React.FC<RevealCardProps> = ({ question, onClose }) => {
+export const RevealCard: FC<RevealCardProps> = ({ question, onClose }) => {
   if (!question) return null;
 
   return (

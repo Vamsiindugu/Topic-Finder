@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo, Dispatch, SetStateAction, FC } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Question, Category, QUESTIONS } from '../data/questions';
 
@@ -7,10 +7,10 @@ interface KineticWheelProps {
   onSpinComplete: (result: { status: 'started' } | { status: 'finished', question: Question }) => void;
   activeCategory: Category | 'All';
   history: string[];
-  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
+  setHistory: Dispatch<SetStateAction<string[]>>;
 }
 
-export const KineticWheel: React.FC<KineticWheelProps> = ({ isSpinning, onSpinComplete, activeCategory, history, setHistory }) => {
+export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete, activeCategory, history, setHistory }) => {
   const rotation = useMotionValue(0);
 
   const pointerRotate = useTransform(rotation, (val) => {

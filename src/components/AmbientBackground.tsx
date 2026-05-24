@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
-export const AmbientBackground = React.memo(() => {
+export const AmbientBackground = memo(() => {
   const mouseX = useMotionValue(-400);
   const mouseY = useMotionValue(-400);
   

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle, Sparkles } from 'lucide-react';
 import { CATEGORIES, QUESTIONS, Question, Category } from './data/questions';
