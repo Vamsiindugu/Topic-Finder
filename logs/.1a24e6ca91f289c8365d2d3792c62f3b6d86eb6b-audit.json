@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\ROGLOVER\\Documents\\Obsidian\\Vamsi\\My Projects\\Topic-Finder\\logs\\.1a24e6ca91f289c8365d2d3792c62f3b6d86eb6b-audit.json",
+    "files": [
+        {
+            "date": 1779607890754,
+            "name": "C:\\Users\\ROGLOVER\\Documents\\Obsidian\\Vamsi\\My Projects\\Topic-Finder\\logs\\mcp-puppeteer-2026-05-24.log",
+            "hash": "57b4a20042ac08e0806313105178e159968317862134d38b23869b37d9b32a80"
+        }
+    ],
+    "hashType": "sha256"
+}
