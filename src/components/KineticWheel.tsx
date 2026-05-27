@@ -1,20 +1,23 @@
-import { useMemo, Dispatch, SetStateAction, FC, useCallback } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { Question, Category, QUESTIONS } from '../data/questions';
+import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import { animate, motion, useMotionValue, useReducedMotion, useTransform, AnimationPlaybackControls } from 'framer-motion';
+import { Question } from '../data/questions';
 
 interface KineticWheelProps {
   isSpinning: boolean;
-  onSpinComplete: (result: { status: 'started' } | { status: 'finished', question: Question }) => void;
-  activeCategory: Category | 'All';
-  history: string[];
-  setHistory: Dispatch<SetStateAction<string[]>>;
+  onSpinRequest: () => Question | null;
+  onSpinComplete: (question: Question) => void;
 }
 
-export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete, activeCategory, history, setHistory }) => {
+const SEGMENT_COUNT = 12;
+const SEGMENT_ANGLE = 360 / SEGMENT_COUNT;
+
+export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinRequest, onSpinComplete }) => {
   const rotation = useMotionValue(0);
+  const prefersReducedMotion = useReducedMotion();
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
 
   const pointerRotate = useTransform(rotation, (val) => {
-    const slice = (val % 30 + 30) % 30;
+    const slice = (val % SEGMENT_ANGLE + SEGMENT_ANGLE) % SEGMENT_ANGLE;
     if (slice >= 22 && slice < 30) {
         return ((slice - 22) / 8) * -22;
     } 
@@ -25,7 +28,7 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
   });
 
   const pointerY = useTransform(rotation, (val) => {
-    const slice = (val % 30 + 30) % 30;
+    const slice = (val % SEGMENT_ANGLE + SEGMENT_ANGLE) % SEGMENT_ANGLE;
     if (slice >= 22 && slice < 30) {
         return ((slice - 22) / 8) * -4;
     } else if (slice >= 0 && slice < 4) {
@@ -36,35 +39,37 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
 
   const triggerSpin = useCallback(async () => {
     if (isSpinning) return;
-    
-    const historySet = new Set(history);
-    let pool = QUESTIONS.filter(q => (activeCategory === 'All' || q.category === activeCategory) && !historySet.has(q.id));
-    
-    if (pool.length === 0) {
-      setHistory([]);
-      pool = QUESTIONS.filter(q => activeCategory === 'All' || q.category === activeCategory);
-    }
 
-    if (pool.length === 0) return;
+    const selectedQuestion = onSpinRequest();
+    if (!selectedQuestion) return;
 
-    const selectedQuestion = pool[Math.floor(Math.random() * pool.length)];
-    const targetRotation = rotation.get() + (360 * 5) + (Math.random() * 360);
-    
-    onSpinComplete({ status: 'started' });
+    animationRef.current?.stop();
 
-    animate(rotation, targetRotation, {
-      duration: 4,
+    const currentRotation = rotation.get();
+    const targetRotation = prefersReducedMotion
+      ? currentRotation + SEGMENT_ANGLE
+      : currentRotation + (360 * 5) + (Math.random() * 360);
+
+    animationRef.current = animate(rotation, targetRotation, {
+      duration: prefersReducedMotion ? 0.01 : 3.6,
       ease: [0.2, 0.8, 0.2, 1],
-      onComplete: () => onSpinComplete({ status: 'finished', question: selectedQuestion })
+      onComplete: () => {
+        animationRef.current = null;
+        onSpinComplete(selectedQuestion);
+      },
     });
-  }, [isSpinning, activeCategory, history, setHistory, onSpinComplete, rotation]);
+  }, [isSpinning, onSpinComplete, onSpinRequest, prefersReducedMotion, rotation]);
+
+  useEffect(() => {
+    return () => animationRef.current?.stop();
+  }, []);
 
   const wheelSegments = useMemo(() => (
-    [...Array(12)].map((_, i) => (
+    Array.from({ length: SEGMENT_COUNT }, (_, i) => (
       <div 
         key={i} 
         className="absolute inset-0"
-        style={{ transform: `rotate(${i * 30}deg)` }}
+        style={{ transform: `rotate(${i * SEGMENT_ANGLE}deg)` }}
       >
         <div className="absolute top-0 left-1/2 w-[1px] h-full bg-gradient-to-b from-white/10 via-transparent to-white/10 -translate-x-1/2" />
         <div className="absolute top-0 left-0 w-full h-full flex justify-center items-start pt-[12%]" style={{ transform: 'rotate(15deg)' }}>
@@ -78,7 +83,7 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
   ), []);
 
   return (
-    <div className="relative w-[85vw] max-w-[320px] aspect-square md:max-w-[400px] flex items-center justify-center z-10 touch-none mx-auto">
+    <div className="relative w-[min(82vw,48vh,410px)] min-w-[260px] aspect-square flex items-center justify-center z-10 touch-none mx-auto">
       <div className="absolute top-[-10px] md:top-[-20px] z-20 flex flex-col items-center">
         <motion.div 
           style={{ 
@@ -95,21 +100,20 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
         />
       </div>
 
-      <motion.div 
-        animate={{ scale: isSpinning ? 1.05 : 1, opacity: isSpinning ? 0.8 : 0.3 }}
+      <motion.div
+        animate={{ scale: isSpinning ? 1.04 : 1, opacity: isSpinning ? 0.72 : 0.28 }}
         className="absolute inset-0 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"
       />
-{/* The Rotary Ring */}
-<motion.div 
-  className="absolute inset-0 rounded-full border-[1px] border-white/10 shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] overflow-hidden bg-[#09090b] will-change-transform"
-  style={{ rotate: rotation, z: 0 }}
->
+      <motion.div
+        className="absolute inset-0 rounded-full border border-white/10 shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] overflow-hidden bg-[#09090b] will-change-transform"
+        style={{ rotate: rotation }}
+      >
         <div className="absolute inset-0" style={{ background: 'conic-gradient(from 180deg at 50% 50%, #121214 0deg, #18181b 180deg, #121214 360deg)' }} />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15)_15%,transparent_50%)] pointer-events-none" />
         <div className="absolute inset-0" style={{ background: 'repeating-conic-gradient(from 0deg, rgba(255,255,255,0.02) 0deg 30deg, transparent 30deg 60deg)' }} />
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        <motion.div
+          animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
           className="absolute inset-[15%] rounded-full border border-indigo-500/20 border-dashed pointer-events-none" 
         />
         <div className="absolute inset-[30%] rounded-full border border-white/5 pointer-events-none" />
@@ -118,16 +122,18 @@ export const KineticWheel: FC<KineticWheelProps> = ({ isSpinning, onSpinComplete
       </motion.div>
 
       <motion.button
+        type="button"
         onClick={triggerSpin}
         disabled={isSpinning}
         whileHover={!isSpinning ? { scale: 1.05 } : {}}
         whileTap={!isSpinning ? { scale: 0.95 } : {}}
-        className="relative z-30 w-[40%] h-[40%] max-w-[160px] max-h-[160px] rounded-full flex flex-col items-center justify-center cursor-pointer group disabled:cursor-default"
+        className="relative z-30 w-[40%] h-[40%] max-w-[160px] max-h-[160px] rounded-full flex flex-col items-center justify-center cursor-pointer group disabled:cursor-default focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-300"
+        aria-label={isSpinning ? 'Wheel is spinning' : 'Spin for a question'}
       >
         <div className="absolute inset-0 rounded-full bg-gradient-to-b from-zinc-800 to-zinc-950 shadow-[inset_0_2px_20px_rgba(255,255,255,0.05),_0_15px_35px_rgba(0,0,0,0.8)] border border-white/10 group-hover:border-indigo-500/50 transition-colors duration-500" />
         <div className="absolute inset-3 sm:inset-4 rounded-full bg-[#050505] shadow-[inset_0_5px_20px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden">
             <motion.div 
-              animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.8, 1, 0.8] }}
+              animate={prefersReducedMotion ? { opacity: 0.42 } : { opacity: [0.3, 0.6, 0.3], scale: [0.8, 1, 0.8] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.25)_0%,transparent_70%)]"
             />
