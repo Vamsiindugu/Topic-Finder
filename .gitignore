@@ -5,6 +5,7 @@ node_modules/
 
 # Testing
 coverage/
+Test-Results/
 
 # Production
 dist/
@@ -32,3 +33,4 @@ logs/
 *.njsproj
 *.sln
 *.sw?
+Remaining questions.txt
